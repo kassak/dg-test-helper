@@ -1,0 +1,22 @@
+<idea-plugin url="https://github.com/kassak/geo-support">
+  <id>com.github.kassak.dg-test-helper</id>
+  <name>DG Test Helper</name>
+  <description>Helps to run tests easier. Some more chars.</description>
+  <vendor url="https://github.com/kassak"/>
+
+  <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.java</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <runConfigurationExtension implementation="com.github.kassak.dg.DGConfigurationExtension"/>
+    <projectService serviceImplementation="com.github.kassak.dg.DGTestSettings"/>
+  </extensions>
+
+  <actions>
+    <action id="DGManageFilters" class="com.github.kassak.dg.DGFilterComboBoxAction" text="DB Filter">
+      <add-to-group group-id="ToolbarRunGroup" relative-to-action="RunConfiguration" anchor="before"/>
+      <add-to-group group-id="RunMenu" anchor="before" relative-to-action="editRunConfigurations"/>
+    </action>
+  </actions>
+</idea-plugin>
