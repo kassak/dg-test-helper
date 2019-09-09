@@ -35,7 +35,7 @@ allprojects {
   }
 
   patchPluginXml {
-    sinceBuild '171'
+    sinceBuild '193'
     untilBuild '993'
   }
 }
