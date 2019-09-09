@@ -7,6 +7,7 @@
   <depends>com.intellij.modules.lang</depends>
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.modules.java</depends>
+  <depends optional="true" config-file="sql-support.xml">com.intellij.modules.sql</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <runConfigurationExtension implementation="com.github.kassak.dg.DGConfigurationExtension"/>

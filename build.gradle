@@ -9,7 +9,7 @@ repositories {
 }
 
 allprojects {
-  version '0.01'
+  version '0.02'
 
   apply plugin: 'java'
   sourceCompatibility = 1.8
@@ -31,7 +31,7 @@ allprojects {
     type 'IC'
     localPath project.properties.get("local.idea")
     alternativeIdePath project.properties.get("local.altIde")
-    plugins = ['java']
+    plugins = ['java', 'DatabaseTools']
   }
 
   patchPluginXml {
@@ -42,6 +42,6 @@ allprojects {
 
 publishPlugin {
   username project.properties.get("publish.user")
-  password project.properties.get("publish.password")
+  token project.properties.get("publish.token")
   channels project.properties.get("publish.channel") ?: "Stable"
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <lang.substitutor language="SQL" implementationClass="com.github.kassak.dg.DGDialectsSubstitutor" order="first"/>
+  </extensions>
+
+</idea-plugin>
