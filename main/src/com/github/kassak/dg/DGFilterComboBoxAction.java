@@ -1,22 +1,24 @@
 package com.github.kassak.dg;
 
+import com.github.kassak.dg.DGTestDataSources.DGTestDataSource;
 import com.intellij.execution.runners.ExecutionUtil;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.ui.newItemPopup.NewItemPopupUtil;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.popup.*;
+import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.EditorTextField;
-import com.intellij.ui.popup.KeepingPopupOpenAction;
+import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.popup.PopupFactoryImpl;
 import com.intellij.ui.popup.list.ListPopupImpl;
 import com.intellij.util.ArrayUtil;
@@ -34,6 +36,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -216,8 +219,21 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
       }
     };
     editor.selectAll();
-    builder.addLabeledComponent("Filter:", editor);
-    JBPopup popup = NewItemPopupUtil.createNewItemPopup("Edit Filter", builder.getPanel(), editor);
+    ComponentWithBrowseButton<EditorTextField> comp = new ComponentWithBrowseButton<>(editor, e -> choosePredefined(project, editor, editor::setText));
+    builder.addLabeledComponent("Filter:", comp);
+    JBPopup popup = JBPopupFactory.getInstance().createComponentPopupBuilder(builder.getPanel(), editor)
+      .setTitle("Edit Filter")
+      .setResizable(true)
+      .setModalContext(true)
+      .setFocusable(true)
+      .setRequestFocus(true)
+      .setMovable(true)
+      .setBelongsToGlobalPopupStack(true)
+      .setCancelKeyEnabled(true)
+      .setCancelOnWindowDeactivation(false)
+      .setCancelOnClickOutside(true)
+      .addUserData("SIMPLE_WINDOW")
+      .createPopup();
     closeOk.set(popup::closeOk);
 
     CompletableFuture<String> res = new CompletableFuture<>();
@@ -235,6 +251,34 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     popup.setMinimumSize(new Dimension(200, 10));
     popup.showCenteredInCurrentWindow(project);
     return res;
+  }
+
+  private static void choosePredefined(@NotNull Project project, @NotNull JComponent e, @NotNull Consumer<String> s) {
+    List<DGTestDataSource> dss = DGTestDataSources.list(project).flatten(td -> td.dataSources).sort((ds1, ds2) -> StringUtil.naturalCompare(ds1.uuid, ds2.uuid)).toList();
+    JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<DGTestDataSource>("Test Data Sources", dss) {
+      @Override
+      public Icon getIconFor(DGTestDataSource value) {
+        return value.getIcon();
+      }
+
+      @NotNull
+      @Override
+      public String getTextFor(DGTestDataSource value) {
+        return value.uuid;
+      }
+
+      @Nullable
+      @Override
+      public PopupStep<?> onChosen(DGTestDataSource selectedValue, boolean finalChoice) {
+        if (selectedValue != null) s.consume(selectedValue.uuid);
+        return FINAL_CHOICE;
+      }
+
+      @Override
+      public boolean isSpeedSearchEnabled() {
+        return true;
+      }
+    }).showUnderneathOf(e);
   }
 
   private static final Key<Boolean> IS_DG_PROJECT = Key.create("IS_DG_PROJECT");

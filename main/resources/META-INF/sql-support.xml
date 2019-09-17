@@ -4,6 +4,6 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <lang.substitutor language="SQL" implementationClass="com.github.kassak.dg.DGDialectsSubstitutor" order="first"/>
+    <applicationService serviceInterface="com.github.kassak.dg.DGTestDataSources$PresentationHelper" serviceImplementation="com.github.kassak.dg.DGPresentationHelper"/>
   </extensions>
-
 </idea-plugin>
