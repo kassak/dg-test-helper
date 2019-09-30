@@ -4,6 +4,7 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.JavaTestConfigurationBase;
 import com.intellij.execution.RunConfigurationExtension;
 import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.execution.configurations.ParametersList;
 import com.intellij.execution.configurations.RunConfigurationBase;
 import com.intellij.execution.configurations.RunnerSettings;
 import com.intellij.ide.DataManager;
@@ -32,11 +33,22 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DGConfigurationExtension extends RunConfigurationExtension {
+
+  private static final String DB_FILTER = "db.filter";
+  private static final String OVERWRITE_DATA = "idea.tests.overwrite.data";
+
   @Override
   public <T extends RunConfigurationBase> void updateJavaParameters(@NotNull T configuration, @NotNull JavaParameters parameters, RunnerSettings settings) throws ExecutionException {
     if (!isApplicableFor(configuration)) return;
-    String filter = getFilter(configuration.getProject());
-    parameters.getVMParametersList().defineProperty("db.filter", filter);
+    Project project = configuration.getProject();
+    ParametersList params = parameters.getVMParametersList();
+    if (!params.hasProperty(DB_FILTER)) {
+      String filter = getFilter(project);
+      params.defineProperty(DB_FILTER, filter);
+    }
+    if (!params.hasProperty(OVERWRITE_DATA) && DGTestSettings.getInstance(project).isOverwrite()) {
+      params.defineProperty(OVERWRITE_DATA, "true");
+    }
   }
 
   private String getFilter(Project project) {
@@ -91,10 +103,7 @@ public class DGConfigurationExtension extends RunConfigurationExtension {
   public boolean isApplicableFor(@NotNull RunConfigurationBase<?> configuration) {
     JavaTestConfigurationBase javaConfig = ObjectUtils.tryCast(configuration, JavaTestConfigurationBase.class);
     if (javaConfig == null) return false;
-    if (Arrays.stream(javaConfig.getModules())
-      .noneMatch(m -> m.getName().startsWith("intellij.database"))) {
-      return false;
-    }
-    return !javaConfig.getVMParameters().contains("-Ddb.filter");
+    return Arrays.stream(javaConfig.getModules())
+      .anyMatch(m -> m.getName().startsWith("intellij.database"));
   }
 }

@@ -53,10 +53,19 @@ public class DGTestSettings implements PersistentStateComponent<DGTestSettings.S
     myState.ask = ask;
   }
 
+  public boolean isOverwrite() {
+    return myState.overwrite;
+  }
+
+  public void setOverwrite(boolean overwrite) {
+    myState.overwrite = overwrite;
+  }
+
 
   public static class State {
     public Set<String> filters = ContainerUtil.newTreeSet();
     public String current;
     public boolean ask;
+    public boolean overwrite;
   }
 }
