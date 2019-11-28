@@ -3,8 +3,10 @@ package com.github.kassak.dg;
 import com.github.kassak.dg.DGTestDataSources.DGTestDataSource;
 import com.intellij.execution.runners.ExecutionUtil;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.util.PsiNavigationSupport;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.DumbAware;
@@ -15,8 +17,11 @@ import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.pom.Navigatable;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.popup.PopupFactoryImpl;
@@ -40,6 +45,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware {
   @NotNull
@@ -92,7 +99,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
 
   private void setUpPopup(JBPopup popup) {
     if (popup instanceof ListPopupImpl) registerActions((ListPopupImpl) popup);
-    popup.setAdText("Del - delete, F4 - edit", SwingConstants.LEFT);
+    popup.setAdText("Del - delete, F4 - edit, F3 - navigate", SwingConstants.LEFT);
   }
 
   @Override
@@ -143,6 +150,48 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
         if (filter == null) return;
         filter.edit(popup.getProject());
         popup.cancel();
+      }
+    });
+
+    popup.registerAction("navigateFilter", KeyStroke.getKeyStroke("F3"), new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        MyFilterAction filter = getSelectedFilter(popup);
+        if (filter == null) return;
+        Pattern p;
+        try {
+          p = Pattern.compile(filter.myFilter);
+        }
+        catch (PatternSyntaxException pse) {
+          return;
+        }
+        List<DGTestDataSource> targets = DGTestDataSources.list(popup.getProject())
+          .flatten(dss -> dss.dataSources)
+          .filter(ds -> p.matcher(ds.uuid).matches())
+          .toList();
+        if (targets.isEmpty()) return;
+        if (targets.size() == 1) {
+          navigate(targets.get(0));
+          return;
+        }
+        popup.cancel();
+        JBPopupFactory.getInstance()
+          .createPopupChooserBuilder(targets)
+          .setItemChosenCallback(this::navigate)
+          .setRenderer(SimpleListCellRenderer.<DGTestDataSource>create((lbl, o, i) -> {
+            lbl.setIcon(o.getIcon());
+            lbl.setText(o.uuid);
+          }))
+          .createPopup()
+          .showInFocusCenter();
+      }
+
+      private void navigate(DGTestDataSource ds) {
+        XmlTag element = ds.source.getElement();
+        if (element != null) {
+          Navigatable descriptor = PsiNavigationSupport.getInstance().getDescriptor(element);
+          if (descriptor != null) descriptor.navigate(true);
+        }
       }
     });
 
@@ -222,7 +271,12 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
       }
     };
     editor.selectAll();
-    ComponentWithBrowseButton<EditorTextField> comp = new ComponentWithBrowseButton<>(editor, e -> choosePredefined(project, editor, editor::setText));
+    ComponentWithBrowseButton<EditorTextField> comp = new ComponentWithBrowseButton<>(editor, e -> {
+      choosePredefined(project, editor, text -> {
+        editor.setText(text);
+        IdeFocusManager.getInstance(project).requestFocus(editor, true);
+      });
+    });
     builder.addLabeledComponent("Filter:", comp);
     JBPopup popup = JBPopupFactory.getInstance().createComponentPopupBuilder(builder.getPanel(), editor)
       .setTitle("Edit Filter")

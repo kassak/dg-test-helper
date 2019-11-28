@@ -9,6 +9,8 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.SmartPointerManager;
+import com.intellij.psi.SmartPsiElementPointer;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.xml.XmlFile;
@@ -69,18 +71,20 @@ public class DGTestDataSources {
     XmlTag info = ds.findFirstSubTag("database-info");
     String dbms = info == null ? null : info.getAttributeValue("dbms");
     String version = info == null ? null : info.getAttributeValue("exact-version");
-    return uuid == null ? null : new DGTestDataSource(uuid, dbms, version);
+    return uuid == null ? null : new DGTestDataSource(uuid, dbms, version, ds);
   }
 
   public static class DGTestDataSource {
     public final String uuid;
     public final String dbms;
     public final String version;
+    public final SmartPsiElementPointer<XmlTag> source;
 
-    public DGTestDataSource(@NotNull String uuid, String dbms, String version) {
+    public DGTestDataSource(@NotNull String uuid, String dbms, String version, XmlTag source) {
       this.uuid = uuid;
       this.dbms = dbms;
       this.version = version;
+      this.source = SmartPointerManager.createPointer(source);
     }
 
     @Nullable
