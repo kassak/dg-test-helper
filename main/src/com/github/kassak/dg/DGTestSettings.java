@@ -61,11 +61,20 @@ public class DGTestSettings implements PersistentStateComponent<DGTestSettings.S
     myState.overwrite = overwrite;
   }
 
+  public boolean isInProcessRmi() {
+    return myState.inProcessRmi;
+  }
+
+  public void setInProcessRmi(boolean inProcessRmi) {
+    myState.inProcessRmi = inProcessRmi;
+  }
+
 
   public static class State {
     public Set<String> filters = ContainerUtil.newTreeSet();
     public String current;
     public boolean ask;
     public boolean overwrite;
+    public boolean inProcessRmi;
   }
 }

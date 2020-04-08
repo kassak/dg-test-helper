@@ -36,6 +36,7 @@ public class DGConfigurationExtension extends RunConfigurationExtension {
 
   private static final String DB_FILTER = "db.filter";
   private static final String OVERWRITE_DATA = "idea.tests.overwrite.data";
+  private static final String IN_PROCESS_RMI = "idea.rmi.server.in.process";
 
   @Override
   public <T extends RunConfigurationBase> void updateJavaParameters(@NotNull T configuration, @NotNull JavaParameters parameters, RunnerSettings settings) throws ExecutionException {
@@ -48,6 +49,9 @@ public class DGConfigurationExtension extends RunConfigurationExtension {
     }
     if (!params.hasProperty(OVERWRITE_DATA) && DGTestSettings.getInstance(project).isOverwrite()) {
       params.defineProperty(OVERWRITE_DATA, "true");
+    }
+    if (!params.hasProperty(IN_PROCESS_RMI) && DGTestSettings.getInstance(project).isInProcessRmi()) {
+      params.defineProperty(IN_PROCESS_RMI, "true");
     }
   }
 

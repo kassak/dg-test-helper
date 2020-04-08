@@ -77,6 +77,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     actions.add(new Separator());
     actions.add(new MyAskAction());
     actions.add(new MyOverwriteAction());
+    actions.add(new MyInProcessRmiAction());
     actions.add(new Separator());
     for (String filter : settings.getFilters()) {
       actions.add(new MyFilterAction(filter));
@@ -385,6 +386,26 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
       Project project = e.getProject();
       if (project != null) {
         DGTestSettings.getInstance(project).setOverwrite(selected);
+      }
+    }
+  }
+
+  private static class MyInProcessRmiAction extends ToggleAction/* implements KeepingPopupOpenAction*/ {
+    public MyInProcessRmiAction() {
+      super("In-process RMI");
+    }
+
+    @Override
+    public boolean isSelected(@NotNull AnActionEvent e) {
+      Project project = e.getProject();
+      return project != null && DGTestSettings.getInstance(project).isInProcessRmi();
+    }
+
+    @Override
+    public void setSelected(@NotNull AnActionEvent e, boolean selected) {
+      Project project = e.getProject();
+      if (project != null) {
+        DGTestSettings.getInstance(project).setInProcessRmi(selected);
       }
     }
   }
