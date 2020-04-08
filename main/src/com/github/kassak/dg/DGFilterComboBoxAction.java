@@ -83,7 +83,12 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
       actions.add(new MyFilterAction(filter));
     }
 
-    return new DefaultActionGroup(actions);
+    return new DefaultActionGroup(actions) {
+      @Override
+      public boolean isDumbAware() {
+        return true;
+      }
+    };
   }
 
   @Override
@@ -217,7 +222,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     return ObjectUtils.tryCast(action, MyFilterAction.class);
   }
 
-  private static class MyFilterAction extends ToggleAction {
+  private static class MyFilterAction extends ToggleAction implements DumbAware {
     private final String myFilter;
 
     public MyFilterAction(String filter) {
@@ -350,7 +355,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     return isDG;
   }
 
-  private static class MyAskAction extends ToggleAction/* implements KeepingPopupOpenAction*/ {
+  private static class MyAskAction extends ToggleAction implements DumbAware/*KeepingPopupOpenAction*/ {
     public MyAskAction() {
       super("Always Ask");
     }
@@ -370,7 +375,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     }
   }
 
-  private static class MyOverwriteAction extends ToggleAction/* implements KeepingPopupOpenAction*/ {
+  private static class MyOverwriteAction extends ToggleAction implements DumbAware /*KeepingPopupOpenAction*/ {
     public MyOverwriteAction() {
       super("Overwrite Test Data");
     }
@@ -390,7 +395,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     }
   }
 
-  private static class MyInProcessRmiAction extends ToggleAction/* implements KeepingPopupOpenAction*/ {
+  private static class MyInProcessRmiAction extends ToggleAction implements DumbAware /*KeepingPopupOpenAction*/ {
     public MyInProcessRmiAction() {
       super("In-process RMI");
     }
