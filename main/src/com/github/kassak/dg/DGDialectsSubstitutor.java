@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 public class DGDialectsSubstitutor extends LanguageSubstitutor {
-  private static Map<String, Dbms> MAPPING = createMapping();
+  private static final Map<String, Dbms> MAPPING = createMapping();
 
   private static Map<String, Dbms> createMapping() {
     ImmutableMapBuilder<String, Dbms> builder = ContainerUtil.immutableMapBuilder();

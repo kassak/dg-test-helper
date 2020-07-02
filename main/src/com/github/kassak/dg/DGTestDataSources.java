@@ -1,11 +1,8 @@
 package com.github.kassak.dg;
 
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ContentFolder;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -27,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DGTestDataSources {
+public class DGTestDataSources implements DGTestUtils.ConfigFile<DGTestDataSources.DGTestDataSource> {
   public final String fileName;
   public final List<DGTestDataSource> dataSources;
 
@@ -38,9 +35,7 @@ public class DGTestDataSources {
 
   @NotNull
   public static JBIterable<DGTestDataSources> list(@NotNull Project project) {
-    Module tests = ModuleManager.getInstance(project).findModuleByName("intellij.database.tests");
-    if (tests == null) return JBIterable.empty();
-    JBIterable<VirtualFile> td = JBIterable.of(ModuleRootManager.getInstance(tests).getContentEntries())
+    JBIterable<VirtualFile> td = DGTestUtils.getContent(project, "intellij.database.tests")
       .flatten(e -> e.getSourceFolders(JavaResourceRootType.TEST_RESOURCE))
       .filterMap(ContentFolder::getFile)
       .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> o.getName().endsWith("test-data-sources.xml")));
@@ -74,7 +69,19 @@ public class DGTestDataSources {
     return uuid == null ? null : new DGTestDataSource(uuid, dbms, version, ds);
   }
 
-  public static class DGTestDataSource {
+  @NotNull
+  @Override
+  public String getFileName() {
+    return fileName;
+  }
+
+  @NotNull
+  @Override
+  public JBIterable<DGTestDataSource> getItems() {
+    return JBIterable.from(dataSources);
+  }
+
+  public static class DGTestDataSource implements DGTestUtils.ConfigItem {
     public final String uuid;
     public final String dbms;
     public final String version;
@@ -89,18 +96,21 @@ public class DGTestDataSources {
 
     @Nullable
     public Icon getIcon() {
-      PresentationHelper ph = ServiceManager.getService(PresentationHelper.class);
+      DGTestUtils.PresentationHelper ph = ServiceManager.getService(DGTestUtils.PresentationHelper.class);
       return ph == null ? null : ph.getIcon(dbms);
     }
-  }
 
-  public interface PresentationHelper {
-    Icon getIcon(String dbms);
-    Icon detectIcon(String text);
-  }
+    @NotNull
+    @Override
+    public String getName() {
+      return uuid;
+    }
 
-  public static Icon detectIcon(String text) {
-    PresentationHelper ph = ServiceManager.getService(PresentationHelper.class);
-    return ph == null ? null : ph.detectIcon(text);
+    @Nullable
+    @Override
+    public XmlTag getSource() {
+      return source.getElement();
+    }
+
   }
 }

@@ -1,12 +1,10 @@
 package com.github.kassak.dg;
 
-import com.github.kassak.dg.DGTestDataSources.DGTestDataSource;
 import com.intellij.execution.runners.ExecutionUtil;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.PsiNavigationSupport;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.DumbAware;
@@ -41,7 +39,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -171,7 +168,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
         catch (PatternSyntaxException pse) {
           return;
         }
-        List<DGTestDataSource> targets = DGTestDataSources.list(popup.getProject())
+        List<DGTestDataSources.DGTestDataSource> targets = DGTestDataSources.list(popup.getProject())
           .flatten(dss -> dss.dataSources)
           .filter(ds -> p.matcher(ds.uuid).matches())
           .toList();
@@ -184,7 +181,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
         JBPopupFactory.getInstance()
           .createPopupChooserBuilder(targets)
           .setItemChosenCallback(this::navigate)
-          .setRenderer(SimpleListCellRenderer.<DGTestDataSource>create((lbl, o, i) -> {
+          .setRenderer(SimpleListCellRenderer.<DGTestDataSources.DGTestDataSource>create((lbl, o, i) -> {
             lbl.setIcon(o.getIcon());
             lbl.setText(o.uuid);
           }))
@@ -192,12 +189,9 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
           .showInFocusCenter();
       }
 
-      private void navigate(DGTestDataSource ds) {
+      private void navigate(DGTestDataSources.DGTestDataSource ds) {
         XmlTag element = ds.source.getElement();
-        if (element != null) {
-          Navigatable descriptor = PsiNavigationSupport.getInstance().getDescriptor(element);
-          if (descriptor != null) descriptor.navigate(true);
-        }
+        DGFilterComboBoxAction.navigate(element, true);
       }
     });
 
@@ -212,6 +206,13 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
         }
       });
 
+  }
+
+  public static void navigate(XmlTag element, boolean requestFocus) {
+    if (element != null) {
+      Navigatable descriptor = PsiNavigationSupport.getInstance().getDescriptor(element);
+      if (descriptor != null) descriptor.navigate(requestFocus);
+    }
   }
 
   @Nullable
@@ -317,22 +318,22 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
   }
 
   private static void choosePredefined(@NotNull Project project, @NotNull JComponent e, @NotNull Consumer<String> s) {
-    List<DGTestDataSource> dss = DGTestDataSources.list(project).flatten(td -> td.dataSources).sort((ds1, ds2) -> StringUtil.naturalCompare(ds1.uuid, ds2.uuid)).toList();
-    JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<DGTestDataSource>("Test Data Sources", dss) {
+    List<DGTestDataSources.DGTestDataSource> dss = DGTestDataSources.list(project).flatten(td -> td.dataSources).sort((ds1, ds2) -> StringUtil.naturalCompare(ds1.uuid, ds2.uuid)).toList();
+    JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<DGTestDataSources.DGTestDataSource>("Test Data Sources", dss) {
       @Override
-      public Icon getIconFor(DGTestDataSource value) {
+      public Icon getIconFor(DGTestDataSources.DGTestDataSource value) {
         return value.getIcon();
       }
 
       @NotNull
       @Override
-      public String getTextFor(DGTestDataSource value) {
+      public String getTextFor(DGTestDataSources.DGTestDataSource value) {
         return value.uuid;
       }
 
       @Nullable
       @Override
-      public PopupStep<?> onChosen(DGTestDataSource selectedValue, boolean finalChoice) {
+      public PopupStep<?> onChosen(DGTestDataSources.DGTestDataSource selectedValue, boolean finalChoice) {
         if (selectedValue != null) s.consume(selectedValue.uuid);
         return FINAL_CHOICE;
       }
@@ -346,7 +347,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
 
   private static final Key<Boolean> IS_DG_PROJECT = Key.create("IS_DG_PROJECT");
 
-  private static boolean isDGProject(@NotNull Project project) {
+  public static boolean isDGProject(@NotNull Project project) {
     Boolean isDG = IS_DG_PROJECT.get(project);
     if (isDG == null) {
       isDG = ModuleManager.getInstance(project).findModuleByName("intellij.database") != null;

@@ -9,7 +9,7 @@ repositories {
 }
 
 allprojects {
-  version '0.06'
+  version '0.07'
 
   apply plugin: 'java'
   sourceCompatibility = 1.8

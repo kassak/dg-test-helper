@@ -4,7 +4,7 @@ import com.intellij.database.Dbms;
 
 import javax.swing.*;
 
-public class DGPresentationHelper implements DGTestDataSources.PresentationHelper {
+public class DGPresentationHelper implements DGTestUtils.PresentationHelper {
   @Override
   public Icon getIcon(String dbmsName) {
     Dbms dbms = Dbms.byName(dbmsName);

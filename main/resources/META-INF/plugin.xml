@@ -12,6 +12,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <runConfigurationExtension implementation="com.github.kassak.dg.DGConfigurationExtension"/>
     <projectService serviceImplementation="com.github.kassak.dg.DGTestSettings"/>
+    <gotoSymbolContributor implementation="com.github.kassak.dg.DGTestConfigEntityContributor"/>
   </extensions>
 
   <actions>
