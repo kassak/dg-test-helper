@@ -1,16 +1,19 @@
 package com.github.kassak.dg;
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.JavaTestConfigurationBase;
-import com.intellij.execution.RunConfigurationExtension;
-import com.intellij.execution.configurations.JavaParameters;
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.execution.configurations.RunConfigurationBase;
-import com.intellij.execution.configurations.RunnerSettings;
+import com.intellij.debugger.impl.RemoteConnectionBuilder;
+import com.intellij.debugger.settings.DebuggerSettings;
+import com.intellij.execution.*;
+import com.intellij.execution.configurations.*;
+import com.intellij.execution.executors.DefaultDebugExecutor;
+import com.intellij.execution.process.*;
+import com.intellij.execution.remote.RemoteConfiguration;
+import com.intellij.execution.remote.RemoteConfigurationType;
+import com.intellij.execution.ui.RunContentManager;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -18,13 +21,18 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.JBPopupListener;
 import com.intellij.openapi.ui.popup.LightweightWindowEvent;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.openapi.wm.impl.IdeFrameImpl;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ObjectUtils;
+import org.apache.http.conn.util.InetAddressUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +45,8 @@ public class DGConfigurationExtension extends RunConfigurationExtension {
   private static final String DB_FILTER = "db.filter";
   private static final String OVERWRITE_DATA = "idea.tests.overwrite.data";
   private static final String IN_PROCESS_RMI = "idea.rmi.server.in.process";
+  private static final String REMOTE_DEBUG = "db.remote.process.debug";
+  private static final String DEBUG_INVITATION = "Remote JDBC process is ready for debug: ";
 
   @Override
   public <T extends RunConfigurationBase> void updateJavaParameters(@NotNull T configuration, @NotNull JavaParameters parameters, RunnerSettings settings) throws ExecutionException {
@@ -52,6 +62,9 @@ public class DGConfigurationExtension extends RunConfigurationExtension {
     }
     if (!params.hasProperty(IN_PROCESS_RMI) && DGTestSettings.getInstance(project).isInProcessRmi()) {
       params.defineProperty(IN_PROCESS_RMI, "true");
+    }
+    if (!params.hasProperty(REMOTE_DEBUG) && DGTestSettings.getInstance(project).isAttachRemote()) {
+      params.defineProperty(REMOTE_DEBUG, "true");
     }
   }
 
@@ -109,5 +122,40 @@ public class DGConfigurationExtension extends RunConfigurationExtension {
     if (javaConfig == null) return false;
     return Arrays.stream(javaConfig.getModules())
       .anyMatch(m -> m.getName().startsWith("intellij.database"));
+  }
+
+  @Override
+  protected void attachToProcess(@NotNull RunConfigurationBase<?> configuration, @NotNull ProcessHandler handler, @Nullable RunnerSettings runnerSettings) {
+    super.attachToProcess(configuration, handler, runnerSettings);
+    final Project project = configuration.getProject();
+    if (!DGTestSettings.getInstance(project).isAttachRemote()) return;
+    handler.addProcessListener(new ProcessAdapter() {
+      @Override
+      public void onTextAvailable(@NotNull ProcessEvent processEvent, @NotNull Key key) {
+        if (key != ProcessOutputType.STDOUT) return;
+        String text = processEvent.getText();
+        if (text == null || !text.startsWith(DEBUG_INVITATION)) return;
+        String params = text.substring(DEBUG_INVITATION.length());
+        attach(project, params);
+      }
+    });
+  }
+
+  private void attach(Project project, String params) {
+    String port = extractPort(params);
+    if (port == null) return;
+    ConfigurationFactory factory = RemoteConfigurationType.getInstance().getConfigurationFactories()[0];
+    RunnerAndConfigurationSettings settings = RunManager.getInstance(project).createConfiguration("remote jdbc debug at " + port, factory);
+    RemoteConfiguration remote = (RemoteConfiguration)settings.getConfiguration();
+    remote.PORT = port;
+    JFrame frame = WindowManager.getInstance().getFrame(project);
+    DataContext context = DataManager.getInstance().getDataContext(frame);
+    ExecutorRegistryImpl.RunnerHelper.run(project, remote, settings, context, DefaultDebugExecutor.getDebugExecutorInstance());
+  }
+
+  @Nullable
+  private String extractPort(String params) {
+    int idx = params.lastIndexOf(':');
+    return idx == -1 ? null : params.substring(idx + 1).trim();
   }
 }

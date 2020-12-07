@@ -75,6 +75,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     actions.add(new MyAskAction());
     actions.add(new MyOverwriteAction());
     actions.add(new MyInProcessRmiAction());
+    actions.add(new MyAttachRemoteAction());
     actions.add(new Separator());
     for (String filter : settings.getFilters()) {
       actions.add(new MyFilterAction(filter));
@@ -119,7 +120,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
   }
 
   @NotNull
-  private ListPopup createActionPopup(@NotNull DataContext context, @NotNull JComponent component, @Nullable Runnable disposeCallback) {
+  protected ListPopup createActionPopup(@NotNull DataContext context, @NotNull JComponent component, @Nullable Runnable disposeCallback) {
     DefaultActionGroup group = createPopupActionGroup(component, context);
     ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
       null, group, context, false, shouldShowDisabledActions(), false, disposeCallback, getMaxRows(), getPreselectCondition());
@@ -412,6 +413,26 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
       Project project = e.getProject();
       if (project != null) {
         DGTestSettings.getInstance(project).setInProcessRmi(selected);
+      }
+    }
+  }
+
+  private static class MyAttachRemoteAction extends ToggleAction implements DumbAware /*KeepingPopupOpenAction*/ {
+    public MyAttachRemoteAction() {
+      super("Attach Remote");
+    }
+
+    @Override
+    public boolean isSelected(@NotNull AnActionEvent e) {
+      Project project = e.getProject();
+      return project != null && DGTestSettings.getInstance(project).isAttachRemote();
+    }
+
+    @Override
+    public void setSelected(@NotNull AnActionEvent e, boolean selected) {
+      Project project = e.getProject();
+      if (project != null) {
+        DGTestSettings.getInstance(project).setAttachRemote(selected);
       }
     }
   }

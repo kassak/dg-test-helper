@@ -69,6 +69,14 @@ public class DGTestSettings implements PersistentStateComponent<DGTestSettings.S
     myState.inProcessRmi = inProcessRmi;
   }
 
+  public boolean isAttachRemote() {
+    return myState.attachRemote;
+  }
+
+  public void setAttachRemote(boolean attachRemote) {
+    myState.attachRemote = attachRemote;
+  }
+
 
   public static class State {
     public Set<String> filters = ContainerUtil.newTreeSet();
@@ -76,5 +84,6 @@ public class DGTestSettings implements PersistentStateComponent<DGTestSettings.S
     public boolean ask;
     public boolean overwrite;
     public boolean inProcessRmi;
+    public boolean attachRemote;
   }
 }
