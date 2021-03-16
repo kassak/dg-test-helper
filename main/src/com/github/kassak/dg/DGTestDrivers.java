@@ -34,6 +34,10 @@ public class DGTestDrivers implements DGTestUtils.ConfigFile<DGTestDrivers.DGTes
     this.drivers = drivers;
   }
 
+  public static boolean isTestDatabaseDrivers(@NotNull String name) {
+    return name.endsWith("-drivers.xml");
+  }
+
   @NotNull
   public static JBIterable<DGTestDrivers> list(@NotNull Project project) {
     JBIterable<VirtualFile> td = DGTestUtils.getContent(project, "intellij.database.tests")
@@ -45,7 +49,7 @@ public class DGTestDrivers implements DGTestUtils.ConfigFile<DGTestDrivers.DGTes
       .flatten(e -> e.getSourceFolders(JavaResourceRootType.RESOURCE))
       .filterMap(ContentFolder::getFile)
       .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> o.getName().equals("databaseDrivers")))
-      .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> o.getName().endsWith("-drivers.xml")));
+      .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> isTestDatabaseDrivers(o.getName())));
 
     PsiManager psiManager = PsiManager.getInstance(project);
     return td.append(real).filterMap(psiManager::findFile).map(f -> CachedValuesManager.getCachedValue(f, () -> CachedValueProvider.Result.create(parse(f), f)));

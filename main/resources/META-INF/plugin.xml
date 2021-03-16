@@ -13,6 +13,7 @@
     <runConfigurationExtension implementation="com.github.kassak.dg.DGConfigurationExtension"/>
     <projectService serviceImplementation="com.github.kassak.dg.DGTestSettings"/>
     <gotoSymbolContributor implementation="com.github.kassak.dg.DGTestConfigEntityContributor"/>
+    <psi.referenceContributor implementation="com.github.kassak.dg.DGConfigReferenceContributor"/>
   </extensions>
 
   <actions>

@@ -33,12 +33,16 @@ public class DGTestDataSources implements DGTestUtils.ConfigFile<DGTestDataSourc
     this.dataSources = dataSources;
   }
 
+  public static boolean isTestDataSource(@NotNull String name) {
+    return name.endsWith("test-data-sources.xml");
+  }
+
   @NotNull
   public static JBIterable<DGTestDataSources> list(@NotNull Project project) {
     JBIterable<VirtualFile> td = DGTestUtils.getContent(project, "intellij.database.tests")
       .flatten(e -> e.getSourceFolders(JavaResourceRootType.TEST_RESOURCE))
       .filterMap(ContentFolder::getFile)
-      .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> o.getName().endsWith("test-data-sources.xml")));
+      .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> isTestDataSource(o.getName())));
     PsiManager psiManager = PsiManager.getInstance(project);
     return td.filterMap(psiManager::findFile).map(f -> CachedValuesManager.getCachedValue(f, () -> CachedValueProvider.Result.create(parse(f), f)));
   }
