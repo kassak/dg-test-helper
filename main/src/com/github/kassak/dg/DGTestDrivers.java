@@ -1,9 +1,7 @@
 package com.github.kassak.dg;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ContentFolder;
 import com.intellij.openapi.util.NullableLazyValue;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -15,8 +13,6 @@ import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.ui.LayeredIcon;
-import com.intellij.util.IconUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.JBIterable;
@@ -44,7 +40,8 @@ public class DGTestDrivers implements DGTestUtils.ConfigFile<DGTestDrivers.DGTes
       .flatten(e -> e.getSourceFolders(JavaResourceRootType.TEST_RESOURCE))
       .filterMap(ContentFolder::getFile)
       .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> o.getName().endsWith("test-database-drivers.xml")));
-    JBIterable<VirtualFile> real = DGTestUtils.getContent(project, "intellij.database.impl")
+    JBIterable<VirtualFile> real = DGTestUtils.findDGSubModules(project, "intellij.database")
+      .flatten(DGTestUtils::getModuleContent)
       .flatten(e -> e.getSourceFolders(JavaResourceRootType.RESOURCE))
       .filterMap(ContentFolder::getFile)
       .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> o.getName().equals("databaseDrivers")))

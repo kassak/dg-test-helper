@@ -182,7 +182,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
         JBPopupFactory.getInstance()
           .createPopupChooserBuilder(targets)
           .setItemChosenCallback(this::navigate)
-          .setRenderer(SimpleListCellRenderer.<DGTestDataSources.DGTestDataSource>create((lbl, o, i) -> {
+          .setRenderer(SimpleListCellRenderer.create((lbl, o, i) -> {
             lbl.setIcon(o.getIcon());
             lbl.setText(o.uuid);
           }))
@@ -279,12 +279,11 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
       }
     };
     editor.selectAll();
-    ComponentWithBrowseButton<EditorTextField> comp = new ComponentWithBrowseButton<>(editor, e -> {
+    ComponentWithBrowseButton<EditorTextField> comp = new ComponentWithBrowseButton<>(editor, e ->
       choosePredefined(project, editor, text -> {
         editor.setText(text);
         IdeFocusManager.getInstance(project).requestFocus(editor, true);
-      });
-    });
+      }));
     builder.addLabeledComponent("Filter:", comp);
     JBPopup popup = JBPopupFactory.getInstance().createComponentPopupBuilder(builder.getPanel(), editor)
       .setTitle("Edit Filter")
@@ -302,7 +301,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     closeOk.set(popup::closeOk);
 
     CompletableFuture<String> res = new CompletableFuture<>();
-    popup.addListener(new JBPopupAdapter() {
+    popup.addListener(new JBPopupListener() {
       @Override
       public void onClosed(@NotNull LightweightWindowEvent event) {
         if (event.isOk()) {
@@ -399,7 +398,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
 
   private static class MyInProcessRmiAction extends ToggleAction implements DumbAware /*KeepingPopupOpenAction*/ {
     public MyInProcessRmiAction() {
-      super("In-process RMI");
+      super("In-Process RMI");
     }
 
     @Override

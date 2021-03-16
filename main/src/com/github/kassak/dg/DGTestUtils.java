@@ -21,8 +21,28 @@ import javax.swing.*;
 public class DGTestUtils {
   @NotNull
   public static JBIterable<ContentEntry> getContent(@NotNull Project project, String moduleName) {
-    Module tests = DGFilterComboBoxAction.isDGProject(project) ? ModuleManager.getInstance(project).findModuleByName(moduleName) : null;
-    return JBIterable.of(tests == null ? null : ModuleRootManager.getInstance(tests).getContentEntries());
+    return getModuleContent(findDGModule(project, moduleName));
+  }
+
+  @NotNull
+  public static JBIterable<ContentEntry> getModuleContent(@Nullable Module m) {
+    return JBIterable.of(m == null ? null : ModuleRootManager.getInstance(m).getContentEntries());
+  }
+
+  @Nullable
+  public static Module findDGModule(@NotNull Project project, String moduleName) {
+    return DGFilterComboBoxAction.isDGProject(project) ? ModuleManager.getInstance(project).findModuleByName(moduleName) : null;
+  }
+
+  @NotNull
+  public static JBIterable<Module> getDGModules(@NotNull Project project) {
+    return DGFilterComboBoxAction.isDGProject(project)
+      ? JBIterable.of(ModuleManager.getInstance(project).getModules())
+      : JBIterable.empty();
+  }
+  @NotNull
+  public static JBIterable<Module> findDGSubModules(@NotNull Project project, String moduleNamePrefix) {
+    return getDGModules(project).filter(m -> m.getName().startsWith(moduleNamePrefix));
   }
 
   @NotNull

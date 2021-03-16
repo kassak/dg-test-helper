@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.TreeSet;
 
 @State(name = "DGTestSettings", storages = {
   @Storage(StoragePathMacros.WORKSPACE_FILE),
@@ -79,7 +80,7 @@ public class DGTestSettings implements PersistentStateComponent<DGTestSettings.S
 
 
   public static class State {
-    public Set<String> filters = ContainerUtil.newTreeSet();
+    public Set<String> filters = new TreeSet<>();
     public String current;
     public boolean ask;
     public boolean overwrite;

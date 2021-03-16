@@ -27,6 +27,7 @@ public class DGTestConfigEntityContributor implements GotoClassContributor, Choo
     getConfigs(project)
       .flatten(ConfigFile::getItems)
       .map(ConfigItem::getName)
+      .unique()
       .processEach(processor);
   }
 
