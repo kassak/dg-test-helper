@@ -9,7 +9,7 @@ repositories {
 }
 
 allprojects {
-  version '0.10'
+  version '0.11'
 
   apply plugin: 'java'
   sourceCompatibility = 1.8
@@ -35,7 +35,7 @@ allprojects {
   }
 
   patchPluginXml {
-    sinceBuild '193'
+    sinceBuild '212.2695'
     untilBuild '993'
   }
 }
@@ -49,3 +49,6 @@ publishPlugin {
   token project.properties.get("publish.token")
   channels project.properties.get("publish.channel") ?: "Stable"
 }
+
+buildSearchableOptions.enabled = false
+

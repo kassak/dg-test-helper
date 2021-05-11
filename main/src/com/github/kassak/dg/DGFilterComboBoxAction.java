@@ -133,7 +133,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
   public void update(@NotNull AnActionEvent e) {
     Presentation presentation = e.getPresentation();
     Project project = e.getProject();
-    boolean isMenu = ActionPlaces.isMainMenuOrShortcut(e.getPlace());
+    boolean isMenu = ActionPlaces.isMainMenuOrActionSearch(e.getPlace());
     boolean dg = project != null && isDGProject(project);
     presentation.setEnabledAndVisible(dg);
     String currentFilter = project == null ? null : DGTestSettings.getInstance(project).getCurrent();
