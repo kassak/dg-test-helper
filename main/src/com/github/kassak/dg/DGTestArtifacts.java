@@ -37,7 +37,7 @@ public class DGTestArtifacts implements DGTestUtils.ConfigFile<DGTestArtifacts.D
 
   @NotNull
   public static JBIterable<DGTestArtifacts> list(@NotNull Project project) {
-    JBIterable<VirtualFile> td = DGTestUtils.getContent(project, "intellij.database.tests")
+    JBIterable<VirtualFile> td = DGTestUtils.getTestContents(project)
       .flatten(e -> e.getSourceFolders(JavaResourceRootType.TEST_RESOURCE))
       .filterMap(ContentFolder::getFile)
       .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> o.getName().endsWith("test-database-artifacts.xml")));

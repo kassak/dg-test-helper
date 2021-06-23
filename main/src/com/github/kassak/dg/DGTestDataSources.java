@@ -2,6 +2,7 @@ package com.github.kassak.dg;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ContentFolder;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -39,7 +40,7 @@ public class DGTestDataSources implements DGTestUtils.ConfigFile<DGTestDataSourc
 
   @NotNull
   public static JBIterable<DGTestDataSources> list(@NotNull Project project) {
-    JBIterable<VirtualFile> td = DGTestUtils.getContent(project, "intellij.database.tests")
+    JBIterable<VirtualFile> td = DGTestUtils.getTestContents(project)
       .flatten(e -> e.getSourceFolders(JavaResourceRootType.TEST_RESOURCE))
       .filterMap(ContentFolder::getFile)
       .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> isTestDataSource(o.getName())));

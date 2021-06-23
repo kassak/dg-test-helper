@@ -40,7 +40,7 @@ public class DGTestDrivers implements DGTestUtils.ConfigFile<DGTestDrivers.DGTes
 
   @NotNull
   public static JBIterable<DGTestDrivers> list(@NotNull Project project) {
-    JBIterable<VirtualFile> td = DGTestUtils.getContent(project, "intellij.database.tests")
+    JBIterable<VirtualFile> td = DGTestUtils.getTestContents(project)
       .flatten(e -> e.getSourceFolders(JavaResourceRootType.TEST_RESOURCE))
       .filterMap(ContentFolder::getFile)
       .flatten(f -> JBIterable.of(f.getChildren()).filter(o -> o.getName().endsWith("test-database-drivers.xml")));

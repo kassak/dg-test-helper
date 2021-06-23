@@ -20,6 +20,12 @@ import javax.swing.*;
 
 public class DGTestUtils {
   @NotNull
+  public static JBIterable<ContentEntry> getTestContents(@NotNull Project project) {
+    return DGTestUtils.getContent(project, "intellij.database.tests")
+      .append(DGTestUtils.getContent(project, "intellij.database.connectivity.tests"));
+  }
+
+  @NotNull
   public static JBIterable<ContentEntry> getContent(@NotNull Project project, String moduleName) {
     return getModuleContent(findDGModule(project, moduleName));
   }
