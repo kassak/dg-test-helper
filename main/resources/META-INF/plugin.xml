@@ -2,7 +2,7 @@
   <id>com.github.kassak.dg-test-helper</id>
   <name>DG Test Helper</name>
   <description>Helps to run tests easier. Some more chars.</description>
-  <vendor url="https://github.com/kassak"/>
+  <vendor url="https://github.com/kassak">Alexander Kass</vendor>>
 
   <depends>com.intellij.modules.lang</depends>
   <depends>com.intellij.modules.platform</depends>

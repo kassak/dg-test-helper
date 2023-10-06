@@ -10,7 +10,7 @@ repositories {
 }
 
 allprojects {
-  version = "0.12"
+  version = "0.13"
 
   apply {
     plugin("java")
