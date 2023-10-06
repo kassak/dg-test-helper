@@ -29,28 +29,28 @@ public class DGConfigReferenceContributor extends PsiReferenceContributor {
     registrar.registerReferenceProvider(driverRefValue(), new PsiReferenceProvider() {
       @NotNull
       @Override
-      public PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
         return ContainerUtil.ar(new DGDriverTagReference((XmlTag)psiElement));
       }
     });
     registrar.registerReferenceProvider(driverBaseValue(), new PsiReferenceProvider() {
       @NotNull
       @Override
-      public PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
         return ContainerUtil.ar(new DGDriverAttributeReference((XmlAttributeValue)psiElement));
       }
     });
     registrar.registerReferenceProvider(driverArtifactIdValue(), new PsiReferenceProvider() {
       @NotNull
       @Override
-      public PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
         return ContainerUtil.ar(new DGArtifactIdAttributeReference((XmlAttributeValue)psiElement));
       }
     });
     registrar.registerReferenceProvider(driverArtifactVersionValue(), new PsiReferenceProvider() {
       @NotNull
       @Override
-      public PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
         return ContainerUtil.ar(new DGArtifactVersionAttributeReference((XmlAttributeValue)psiElement));
       }
     });
@@ -125,7 +125,7 @@ public class DGConfigReferenceContributor extends PsiReferenceContributor {
 
     @NotNull
     @Override
-    public ResolveResult[] multiResolve(boolean b) {
+    public ResolveResult @NotNull [] multiResolve(boolean b) {
       String ver = getCanonicalText();
       return getArtifacts()
         .filter(a -> ver.equals(a.version))
@@ -143,7 +143,7 @@ public class DGConfigReferenceContributor extends PsiReferenceContributor {
 
     @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
       return getArtifacts()
         .map(a -> (Object) LookupElementBuilder.create(a.version).withIcon(a.getIcon()))
         .toArray(ArrayUtil.EMPTY_OBJECT_ARRAY);
@@ -177,7 +177,7 @@ public class DGConfigReferenceContributor extends PsiReferenceContributor {
 
     @NotNull
     @Override
-    public ResolveResult[] multiResolve(boolean b) {
+    public ResolveResult @NotNull [] multiResolve(boolean b) {
       String id = getCanonicalText();
       return DGTestArtifacts.list(getElement().getProject())
         .flatten(DGTestArtifacts::getItems)
@@ -196,7 +196,7 @@ public class DGConfigReferenceContributor extends PsiReferenceContributor {
 
     @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
       return DGTestArtifacts.list(getElement().getProject())
         .flatten(DGTestArtifacts::getItems)
         .map(a -> (Object) LookupElementBuilder.create(a.id).withIcon(a.getIcon()))
@@ -222,7 +222,7 @@ public class DGConfigReferenceContributor extends PsiReferenceContributor {
 
     @NotNull
     @Override
-    default Object[] getVariants() {
+    default Object @NotNull [] getVariants() {
       return DGTestDrivers.list(getElement().getProject()).flatten(DGTestDrivers::getItems)
         .map(d -> (Object)LookupElementBuilder.create(d.getName()).withIcon(d.getIcon()))
         .toArray(ArrayUtil.EMPTY_OBJECT_ARRAY);

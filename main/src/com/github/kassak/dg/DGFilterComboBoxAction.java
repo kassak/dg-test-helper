@@ -46,17 +46,17 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware {
-  @NotNull
+
   @Override
-  protected DefaultActionGroup createPopupActionGroup(JComponent c) {
-    return new DefaultActionGroup();
+  public @NotNull ActionUpdateThread getActionUpdateThread() {
+    return ActionUpdateThread.BGT;
   }
 
   @NotNull
   @Override
-  protected DefaultActionGroup createPopupActionGroup(JComponent button, @NotNull DataContext dataContext) {
+  protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent button, @NotNull DataContext dataContext) {
     Project project = dataContext.getData(PlatformDataKeys.PROJECT);
-    if (project == null) return createPopupActionGroup(button);
+    if (project == null) return new DefaultActionGroup();
     DGTestSettings settings = DGTestSettings.getInstance(project);
     List<AnAction> actions = new ArrayList<>();
     actions.add(new AnAction("New Filter...") {
@@ -90,10 +90,10 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
   }
 
   @Override
-  protected ComboBoxButton createComboBoxButton(Presentation presentation) {
+  protected @NotNull ComboBoxButton createComboBoxButton(@NotNull Presentation presentation) {
     return new ComboBoxAction.ComboBoxButton(presentation) {
       @Override
-      protected JBPopup createPopup(Runnable onDispose) {
+      protected @NotNull JBPopup createPopup(Runnable onDispose) {
         JBPopup popup = super.createPopup(onDispose);
         setUpPopup(popup);
         return popup;
@@ -233,6 +233,11 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     }
 
     @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+      return ActionUpdateThread.BGT;
+    }
+
+    @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
       Project project = e.getProject();
       String current = project == null ? null : DGTestSettings.getInstance(project).getCurrent();
@@ -319,7 +324,7 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
 
   private static void choosePredefined(@NotNull Project project, @NotNull JComponent e, @NotNull Consumer<String> s) {
     List<DGTestDataSources.DGTestDataSource> dss = DGTestDataSources.list(project).flatten(td -> td.dataSources).sort((ds1, ds2) -> StringUtil.naturalCompare(ds1.uuid, ds2.uuid)).toList();
-    JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<DGTestDataSources.DGTestDataSource>("Test Data Sources", dss) {
+    JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<>("Test Data Sources", dss) {
       @Override
       public Icon getIconFor(DGTestDataSources.DGTestDataSource value) {
         return value.getIcon();
@@ -362,6 +367,11 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     }
 
     @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+      return ActionUpdateThread.BGT;
+    }
+
+    @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
       Project project = e.getProject();
       return project != null && DGTestSettings.getInstance(project).isAsk();
@@ -379,6 +389,11 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
   private static class MyOverwriteAction extends ToggleAction implements DumbAware /*KeepingPopupOpenAction*/ {
     public MyOverwriteAction() {
       super("Overwrite Test Data");
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+      return ActionUpdateThread.BGT;
     }
 
     @Override
@@ -402,6 +417,11 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
     }
 
     @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+      return ActionUpdateThread.BGT;
+    }
+
+    @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
       Project project = e.getProject();
       return project != null && DGTestSettings.getInstance(project).isInProcessRmi();
@@ -419,6 +439,11 @@ public class DGFilterComboBoxAction extends ComboBoxAction implements DumbAware 
   private static class MyAttachRemoteAction extends ToggleAction implements DumbAware /*KeepingPopupOpenAction*/ {
     public MyAttachRemoteAction() {
       super("Attach Remote");
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+      return ActionUpdateThread.BGT;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.github.kassak.dg;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -53,8 +53,8 @@ public class DGTestUtils {
 
   @NotNull
   public static NullableLazyValue<Icon> createDbmsCorneredIcon(String dbmsStr, Icon corner) {
-    return NullableLazyValue.createValue(() -> {
-      PresentationHelper ph = ServiceManager.getService(PresentationHelper.class);
+    return NullableLazyValue.lazyNullable(() -> {
+      PresentationHelper ph = ApplicationManager.getApplication().getService(PresentationHelper.class);
       if (ph == null) return null;
       Icon dbmsIcon = ObjectUtils.notNull(ph.detectIcon(dbmsStr), EmptyIcon.ICON_16);
       LayeredIcon result = new LayeredIcon(2);

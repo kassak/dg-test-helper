@@ -1,8 +1,7 @@
 package com.github.kassak.dg;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ContentFolder;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -101,7 +100,7 @@ public class DGTestDataSources implements DGTestUtils.ConfigFile<DGTestDataSourc
 
     @Nullable
     public Icon getIcon() {
-      DGTestUtils.PresentationHelper ph = ServiceManager.getService(DGTestUtils.PresentationHelper.class);
+      DGTestUtils.PresentationHelper ph = ApplicationManager.getApplication().getService(DGTestUtils.PresentationHelper.class);
       return ph == null ? null : ph.getIcon(dbms);
     }
 

@@ -12,18 +12,18 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.LanguageSubstitutor;
 import com.intellij.sql.dialects.SqlLanguageDialect;
 import com.intellij.util.PairFunction;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.ContainerUtil.ImmutableMapBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DGDialectsSubstitutor extends LanguageSubstitutor {
   private static final Map<String, Dbms> MAPPING = createMapping();
 
   private static Map<String, Dbms> createMapping() {
-    ImmutableMapBuilder<String, Dbms> builder = ContainerUtil.immutableMapBuilder();
+    Map<String, Dbms> builder = new LinkedHashMap<>();
     for (Dbms dbms : Dbms.allValues()) {
       builder.put(StringUtil.toLowerCase(dbms.getName()), dbms);
     }
@@ -32,7 +32,7 @@ public class DGDialectsSubstitutor extends LanguageSubstitutor {
     builder.put("pg", Dbms.POSTGRES);
     builder.put("postgresql", Dbms.POSTGRES);
     builder.put("chouse", Dbms.CLICKHOUSE);
-    return builder.build();
+    return Collections.unmodifiableMap(builder);
   }
 
   @Nullable

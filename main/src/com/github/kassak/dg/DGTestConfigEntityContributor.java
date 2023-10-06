@@ -99,7 +99,7 @@ public class DGTestConfigEntityContributor implements GotoClassContributor, Choo
 
   @Nullable
   @Override
-  public String getQualifiedName(NavigationItem navigationItem) {
+  public String getQualifiedName(@NotNull NavigationItem navigationItem) {
     return null;
   }
 

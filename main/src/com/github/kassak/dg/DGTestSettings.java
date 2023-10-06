@@ -1,12 +1,13 @@
 package com.github.kassak.dg;
 
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -16,7 +17,7 @@ import java.util.TreeSet;
 public class DGTestSettings implements PersistentStateComponent<DGTestSettings.State> {
   @NotNull
   public static DGTestSettings getInstance(@NotNull Project project) {
-    return ServiceManager.getService(project, DGTestSettings.class);
+    return project.getService(DGTestSettings.class);
   }
 
   private State myState = new State();
